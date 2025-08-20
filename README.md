@@ -1,73 +1,97 @@
-# Welcome to your Lovable project
+Tentu, ini draf README.md yang bisa kamu gunakan untuk repositori tersebut, berdasarkan analisis dari file yang ada.
 
-## Project info
+# B.I Booster - Website Instan untuk UMKM
 
-**URL**: https://lovable.dev/projects/e45ff2b9-2e71-4790-8a75-85e86a74ad23
+B.I Booster adalah platform lengkap yang menyediakan solusi website instan bagi para pelaku UMKM. Proyek ini memungkinkan pengguna untuk memilih dari berbagai template website profesional, melakukan pemesanan, dan mendapatkan akses ke platform edukasi (LMS) untuk mendukung pengembangan bisnis mereka.
 
-## How can I edit this code?
+## Fitur Utama
 
-There are several ways of editing your application.
+  * **Katalog Template**: Pengguna dapat melihat berbagai kategori template yang dirancang khusus untuk kebutuhan bisnis UMKM seperti Laundry, Makanan, Kerajinan, Fashion, dan lainnya.
+  * **Sistem Pemesanan**: Proses pemesanan yang mudah dengan pemilihan paket dan pembayaran melalui QRIS.
+  * **Platform Edukasi (LMS)**: Pengguna yang sudah melakukan pemesanan mendapatkan akses ke materi pembelajaran eksklusif di dashboard mereka.
+  * **Admin Panel**: Halaman admin untuk verifikasi pembayaran dan manajemen konten LMS (modul, bab, dan materi).
+  * **Otentikasi Pengguna**: Sistem registrasi dan login untuk pengguna dan admin.
 
-**Use Lovable**
+-----
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e45ff2b9-2e71-4790-8a75-85e86a74ad23) and start prompting.
+## Teknologi yang Digunakan
 
-Changes made via Lovable will be committed automatically to this repo.
+Proyek ini dibangun menggunakan arsitektur monorepo dengan frontend dan backend yang terpisah.
 
-**Use your preferred IDE**
+**Frontend:**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+  * **Framework**: React (dengan Vite)
+  * **Bahasa**: TypeScript
+  * **UI Library**: shadcn-ui, Radix UI
+  * **Styling**: Tailwind CSS
+  * **Routing**: React Router DOM
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Backend:**
 
-Follow these steps:
+  * **Framework**: Express.js
+  * **Bahasa**: TypeScript
+  * **Database**: MySQL
+  * **Otentikasi**: bcryptjs untuk hashing password
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+-----
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Instalasi dan Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prasyarat
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+  * Node.js (v18 atau lebih tinggi)
+  * NPM / Bun
+  * MySQL Server
 
-**Edit a file directly in GitHub**
+### 1\. Setup Backend
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1.  **Masuk ke direktori server:**
 
-**Use GitHub Codespaces**
+    ```sh
+    cd server
+    ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2.  **Install dependencies:**
 
-## What technologies are used for this project?
+    ```sh
+    npm install
+    ```
 
-This project is built with:
+3.  **Setup Database:**
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+      * Buat database baru di MySQL dengan nama `booster_db`.
+      * Salin file `.env.example` menjadi `.env` dan sesuaikan konfigurasi database Anda (DB\_HOST, DB\_USER, DB\_PASSWORD, DB\_NAME).
 
-## How can I deploy this project?
+4.  **Seed Admin User:**
+    Jalankan skrip ini untuk membuat akun admin default.
 
-Simply open [Lovable](https://lovable.dev/projects/e45ff2b9-2e71-4790-8a75-85e86a74ad23) and click on Share -> Publish.
+    ```sh
+    npm run dev-seed
+    ```
 
-## Can I connect a custom domain to my Lovable project?
+    (Anda perlu menambahkan skrip `"dev-seed": "ts-node-dev src/seed-admin.ts"` di `server/package.json`)
 
-Yes, you can!
+    Akun admin default:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+      * **Email**: `admin@bibooster.com`
+      * **Password**: `bibooster2024`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+5.  **Jalankan server backend:**
+
+    ```sh
+    npm run dev
+    ```
+
+    Server akan berjalan di `http://localhost:3001`.
+
+### 2\. Setup Frontend
+
+1.  **Kembali ke direktori utama, lalu install dependencies:**
+    ```sh
+    npm install
+    ```
+2.  **Jalankan server frontend:**
+    ```sh
+    npm run dev
+    ```
+    Aplikasi akan berjalan di `http://localhost:8080`.
