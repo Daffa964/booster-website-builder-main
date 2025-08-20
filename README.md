@@ -1,5 +1,3 @@
-Tentu, ini draf README.md yang bisa kamu gunakan untuk repositori tersebut, berdasarkan analisis dari file yang ada.
-
 # B.I Booster - Website Instan untuk UMKM
 
 B.I Booster adalah platform lengkap yang menyediakan solusi website instan bagi para pelaku UMKM. Proyek ini memungkinkan pengguna untuk memilih dari berbagai template website profesional, melakukan pemesanan, dan mendapatkan akses ke platform edukasi (LMS) untuk mendukung pengembangan bisnis mereka.
