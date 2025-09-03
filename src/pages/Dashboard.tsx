@@ -178,7 +178,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header mengikuti tema biru-oranye */}
+      {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-orange-500 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
@@ -220,28 +220,24 @@ const Dashboard = () => {
 
           {/* Learning Tab */}
           <TabsContent value="learning" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {modules.flatMap(module => module.chapters.map(chapter => {
                 const status = getChapterStatus(chapter);
                 const progress = calculateChapterProgress(chapter);
                 return (
-                  <Card key={chapter.id} className={`rounded-2xl shadow-md hover:shadow-lg transition-all ${status === 'locked' ? 'bg-gray-100' : 'bg-white'}`}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="flex items-center gap-2 border-l-4 border-blue-600 pl-3">
-                            {status === 'completed' && <CheckCircle className="text-green-500" size={20}/>} 
-                            {status === 'in-progress' && <Play className="text-blue-500" size={20}/>} 
-                            {status === 'locked' && <Lock className="text-gray-400" size={20}/>} 
-                            {status === 'available' && <BookOpen className="text-gray-600" size={20}/>} 
-                            {chapter.title}
-                          </CardTitle>
-                          <CardDescription>{chapter.description}</CardDescription>
-                        </div>
+                  <div key={chapter.id} className={`course__item w-full rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl ${status === 'locked' ? 'bg-gray-100' : 'bg-white'}`}>
+                    <div className="course__thumb w-full h-48 bg-cover bg-center" style={{ backgroundImage: `url(https://via.placeholder.com/300x180?text=${encodeURIComponent(chapter.title)})` }}>
+                    </div>
+                    <div className="course__content p-6">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPackageBadgeColor(user.package_access)}`}>
+                          {getPackageName(user.package_access)}
+                        </span>
                         <Badge variant={status === 'completed' ? 'default' : status === 'in-progress' ? 'secondary' : 'outline'}>{status}</Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent>
+                      <h3 className="course__title text-xl font-bold mb-3 h-14 overflow-hidden">{chapter.title}</h3>
+                      <p className="text-gray-600 text-sm mb-4 h-10 overflow-hidden">{chapter.description}</p>
+                      
                       {progress > 0 && (
                         <div className="mb-4">
                           <div className="flex justify-between text-sm mb-1">
@@ -254,6 +250,7 @@ const Dashboard = () => {
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button className="w-full rounded-full bg-blue-600 hover:bg-blue-700 text-white" disabled={status === 'locked'}>
+                            {status === 'locked' ? <Lock size={16} className="mr-2"/> : <Play size={16} className="mr-2"/>}
                             {status === 'locked' ? 'Upgrade Paket' : 'Mulai Belajar'}
                           </Button>
                         </DialogTrigger>
@@ -291,8 +288,8 @@ const Dashboard = () => {
                           </div>
                         </DialogContent>
                       </Dialog>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 )
               }))}
             </div>
