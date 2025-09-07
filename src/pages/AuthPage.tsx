@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 // URL backend server Node.js Anda
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
