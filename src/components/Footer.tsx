@@ -1,3 +1,4 @@
+// src/components/Footer.tsx
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -16,14 +17,16 @@ const Footer = () => {
               Platform template website siap pakai untuk UMKM. Hadirkan bisnis Anda secara online dengan mudah dan profesional.
             </p>
             <div className="flex space-x-4">
-              <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
-                Facebook
+              <Button asChild variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
+                <a href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
               </Button>
-              <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
-                Instagram
+              {/* --- PERUBAHAN INSTAGRAM --- */}
+              <Button asChild variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
+                <a href="https://www.instagram.com/bibooster.apps/" target="_blank" rel="noopener noreferrer">Instagram</a>
               </Button>
-              <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
-                WhatsApp
+              {/* --- PERUBAHAN WHATSAPP --- */}
+              <Button asChild variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white">
+                <a href="https://wa.me/6281573707537" target="_blank" rel="noopener noreferrer">WhatsApp</a>
               </Button>
             </div>
           </div>
@@ -43,8 +46,8 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Kontak Kami</h3>
             <div className="space-y-2 text-gray-300">
-              <p>📧 info@bibooster.com</p>
-              <p>📱 +62 812-3456-7890</p>
+              <p>📧 Admin@bibooster.agency</p>
+              <p>📞 +6281573707537</p>
               <p>📍 Kudus, Indonesia</p>
               <p>🕒 Senin - Jumat, 09:00 - 17:00</p>
             </div>
@@ -54,8 +57,8 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
-              <p>© 2024 B.I Booster. All rights reserved.</p>
-              <p className="mt-1">Didukung oleh <span className="text-blue-400 font-semibold">P2MW 2024</span></p>
+              <p>© 2025 B.I Booster. All rights reserved.</p>
+              <p className="mt-1">Didukung oleh <span className="text-blue-400 font-semibold">P2MW 2025</span></p>
             </div>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy Policy</a>

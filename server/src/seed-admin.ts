@@ -26,7 +26,7 @@ const createAdmin = async () => {
     console.log('Password berhasil dienkripsi...');
 
     // 2. Cek apakah admin sudah ada
-    const [existingAdmin]: any[] = await pool.execute('SELECT id FROM User WHERE email = ?', [admin.email]);
+    const [existingAdmin]: any[] = await pool.execute('SELECT id FROM user WHERE email = ?', [admin.email]);
 
     if (existingAdmin.length > 0) {
       console.log('✅ Akun admin sudah ada di database. Tidak ada yang perlu dilakukan.');
@@ -35,7 +35,7 @@ const createAdmin = async () => {
 
     // 3. Masukkan data admin ke database
     await pool.execute(
-      'INSERT INTO User (id, name, email, password, phone, status, accessTier, package_access, is_verified, has_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO user (id, name, email, password, phone, status, accessTier, package_access, is_verified, has_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         admin.id,
         admin.name,

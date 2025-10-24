@@ -14,7 +14,7 @@ const app = express();
 // Port bisa langsung diambil dari process.env karena db.ts sudah memuatnya
 const port = process.env.PORT || 3001; 
 
-app.use(cors({ origin: 'http://localhost:8080' }));
+app.use(cors({ origin: 'https://bibooster.agency' }));
 app.use(express.json());
 
 // Rute

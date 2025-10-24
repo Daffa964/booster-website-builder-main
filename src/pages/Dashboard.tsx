@@ -21,11 +21,28 @@ import {
   FileText,
   Settings,
   ExternalLink,
-  CheckCircle
+  Book, // Menambahkan ikon buku
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// --- TAMBAHAN: Daftar Link Buku ---
+const bookLinks: { [key: string]: string } = {
+  "BAB 1": "https://drive.google.com/file/d/1j87dMtqehno-yeh9Zz6tb_9q4aUomgEO/view?usp=drive_link",
+  "BAB 2": "https://drive.google.com/file/d/1bqBpA-Z_XRCN3R2y2TFUenEcaQLlbQKJ/view?usp=drive_link",
+  "BAB 3": "https://drive.google.com/file/d/1CCu8BZrex1CDEPvctO3vAMPp_TYXrsEu/view?usp=drive_link",
+  "BAB 4": "https://drive.google.com/file/d/1jAlD8F0Pszr9Vx-wGRfbU2XfF3QwcRjG/view?usp=drive_link",
+  "BAB 5": "https://drive.google.com/file/d/1xE7i4iEU7De_rF9SIapgtAnAcNOCbMNF/view?usp=drive_link",
+  "BAB 6": "https://drive.google.com/file/d/1bPbNO11CSjskHesxvFx552JCpU6_lwbR/view?usp=drive_link",
+  "BAB 7": "https://drive.google.com/file/d/1PK3vrstFhR84gUquG_mnDDrYFxlT6hl1/view?usp=drive_link",
+  "BAB 8": "https://drive.google.com/file/d/1UH-xsGtmF1qNGrahKwDaoOFE0mEBb7B5/view?usp=drive_link",
+  "BAB 9": "https://drive.google.com/file/d/1NGYJEMtbbXLU-qQRKohiMYbDDGAMKHao/view?usp=drive_link",
+  "BAB 10": "https://drive.google.com/file/d/186P4YSoURxIPXuDYHSuKas8KF7NSDm7A/view?usp=drive_link",
+  "BAB 11": "https://drive.google.com/file/d/1h-qITrYzltaZQfz8lqksHWpmv88tKqoP/view?usp=drive_link",
+  "BAB 12": "https://drive.google.com/file/d/1j36kVpy3cd6jmr3EFfseW4EPXso2CsIV/view?usp=drive_link",
+};
+// --- AKHIR TAMBAHAN ---
 
 interface UserSession {
   id: string;
@@ -172,6 +189,16 @@ const Dashboard = () => {
     return lesson.required_package?.includes(user.package_access);
   };
 
+  // --- TAMBAHAN: Fungsi untuk mendapatkan link buku ---
+  const getBookLink = (chapterTitle: string) => {
+    const chapterNumber = chapterTitle.match(/BAB (\d+)/);
+    if (chapterNumber && bookLinks[`BAB ${chapterNumber[1]}`]) {
+      return bookLinks[`BAB ${chapterNumber[1]}`];
+    }
+    return "#"; // Fallback link
+  };
+  // --- AKHIR TAMBAHAN ---
+
   if (!user || loading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-600 font-medium">Loading...</div>;
   }
@@ -209,7 +236,6 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:w-fit rounded-full bg-gray-100 p-1">
             <TabsTrigger value="learning" className="flex items-center gap-2 rounded-full px-4 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all"><BookOpen size={16}/> Pembelajaran</TabsTrigger>
@@ -218,17 +244,18 @@ const Dashboard = () => {
             <TabsTrigger value="certificates" className="flex items-center gap-2 rounded-full px-4 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all"><Award size={16}/> Sertifikat</TabsTrigger>
           </TabsList>
 
-          {/* Learning Tab */}
           <TabsContent value="learning" className="space-y-6">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {modules.flatMap(module => module.chapters.map(chapter => {
                 const status = getChapterStatus(chapter);
                 const progress = calculateChapterProgress(chapter);
+                const bookLink = getBookLink(chapter.title);
+
                 return (
-                  <div key={chapter.id} className={`course__item w-full rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl ${status === 'locked' ? 'bg-gray-100' : 'bg-white'}`}>
+                  <div key={chapter.id} className={`course__item w-full rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl flex flex-col ${status === 'locked' ? 'bg-gray-100' : 'bg-white'}`}>
                     <div className="course__thumb w-full h-48 bg-cover bg-center" style={{ backgroundImage: `url(https://via.placeholder.com/300x180?text=${encodeURIComponent(chapter.title)})` }}>
                     </div>
-                    <div className="course__content p-6">
+                    <div className="course__content p-6 flex flex-col flex-grow">
                       <div className="flex justify-between items-center mb-2">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPackageBadgeColor(user.package_access)}`}>
                           {getPackageName(user.package_access)}
@@ -236,7 +263,7 @@ const Dashboard = () => {
                         <Badge variant={status === 'completed' ? 'default' : status === 'in-progress' ? 'secondary' : 'outline'}>{status}</Badge>
                       </div>
                       <h3 className="course__title text-xl font-bold mb-3 h-14 overflow-hidden">{chapter.title}</h3>
-                      <p className="text-gray-600 text-sm mb-4 h-10 overflow-hidden">{chapter.description}</p>
+                      <p className="text-gray-600 text-sm mb-4 h-10 overflow-hidden flex-grow">{chapter.description}</p>
                       
                       {progress > 0 && (
                         <div className="mb-4">
@@ -247,47 +274,58 @@ const Dashboard = () => {
                           <Progress value={progress} className="h-2 rounded-full"/>
                         </div>
                       )}
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button className="w-full rounded-full bg-blue-600 hover:bg-blue-700 text-white" disabled={status === 'locked'}>
-                            {status === 'locked' ? <Lock size={16} className="mr-2"/> : <Play size={16} className="mr-2"/>}
-                            {status === 'locked' ? 'Upgrade Paket' : 'Mulai Belajar'}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto rounded-2xl">
-                          <DialogHeader><DialogTitle>{chapter.title}</DialogTitle></DialogHeader>
-                          <div className="space-y-4 divide-y">
-                            {chapter.lessons.map(lesson => {
-                              const hasAccess = hasLessonAccess(lesson);
-                              return (
-                                <Card key={lesson.id} className={`rounded-xl shadow-sm ${!hasAccess ? 'bg-gray-50 opacity-70' : 'bg-white'}`}>
-                                  <CardHeader>
-                                    <CardTitle className="text-lg flex items-center justify-between">
-                                      <span className="flex items-center gap-2">
-                                        {!hasAccess && <Lock size={16} />} {lesson.title}
-                                      </span>
-                                      <Badge>{lesson.difficulty}</Badge>
-                                    </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <p className="text-sm text-gray-600 mb-4">{lesson.description}</p>
-                                    <div className="flex gap-2">
-                                      {hasAccess ? (
-                                        <>
-                                          <Button asChild variant="outline" size="sm"><a href={lesson.video_url} target="_blank" rel="noopener noreferrer"><Video size={16} className="mr-2"/>Tonton Video</a></Button>
-                                          <Button asChild variant="outline" size="sm"><a href={lesson.materials_url} target="_blank" rel="noopener noreferrer"><FileText size={16} className="mr-2"/>Materi</a></Button>
-                                        </>
-                                      ) : (
-                                        <div className="text-sm text-red-600">Upgrade paket Anda untuk mengakses materi ini.</div>
-                                      )}
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              )
-                            })}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+
+                      {/* --- PERUBAHAN BAGIAN BUTTON --- */}
+                      <div className="mt-auto flex flex-col sm:flex-row gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button className="w-full flex-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white" disabled={status === 'locked'}>
+                              {status === 'locked' ? <Lock size={16} className="mr-2"/> : <Video size={16} className="mr-2"/>}
+                              {status === 'locked' ? 'Terkunci' : 'Modul Video'}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto rounded-2xl">
+                            <DialogHeader><DialogTitle>{chapter.title}</DialogTitle></DialogHeader>
+                            <div className="space-y-4 divide-y">
+                              {chapter.lessons.map(lesson => {
+                                const hasAccess = hasLessonAccess(lesson);
+                                return (
+                                  <Card key={lesson.id} className={`rounded-xl shadow-sm ${!hasAccess ? 'bg-gray-50 opacity-70' : 'bg-white'}`}>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg flex items-center justify-between">
+                                        <span className="flex items-center gap-2">
+                                          {!hasAccess && <Lock size={16} />} {lesson.title}
+                                        </span>
+                                        <Badge>{lesson.difficulty}</Badge>
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <p className="text-sm text-gray-600 mb-4">{lesson.description}</p>
+                                      <div className="flex gap-2">
+                                        {hasAccess ? (
+                                          <>
+                                            <Button asChild variant="outline" size="sm"><a href={lesson.video_url} target="_blank" rel="noopener noreferrer"><Video size={16} className="mr-2"/>Tonton Video</a></Button>
+                                            <Button asChild variant="outline" size="sm"><a href={lesson.materials_url || '#'} target="_blank" rel="noopener noreferrer"><FileText size={16} className="mr-2"/>Materi</a></Button>
+                                          </>
+                                        ) : (
+                                          <div className="text-sm text-red-600">Upgrade paket Anda untuk mengakses materi ini.</div>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                )
+                              })}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        <Button asChild className="w-full flex-1 rounded-full" variant="outline" disabled={status === 'locked'}>
+                          <a href={bookLink} target="_blank" rel="noopener noreferrer">
+                            {status === 'locked' ? <Lock size={16} className="mr-2"/> : <Book size={16} className="mr-2"/>}
+                            Modul Buku
+                          </a>
+                        </Button>
+                      </div>
+                       {/* --- AKHIR PERUBAHAN --- */}
                     </div>
                   </div>
                 )
@@ -295,7 +333,6 @@ const Dashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Templates Tab */}
           <TabsContent value="templates">
             <Card className="rounded-2xl shadow-md">
               <CardHeader>
