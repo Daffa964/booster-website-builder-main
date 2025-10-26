@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import orderRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
 import lmsRoutes from './routes/lms';
+import aiBuilderRoutes from './routes/aiBuilder';
 
 // Baris dotenv.config() tidak lagi diperlukan di sini
 
@@ -14,7 +15,17 @@ const app = express();
 // Port bisa langsung diambil dari process.env karena db.ts sudah memuatnya
 const port = process.env.PORT || 3001; 
 
-app.use(cors({ origin: 'https://bibooster.agency' }));
+const allowedOrigins = ['https://bibooster.agency', 'http://localhost:8080'];
+app.use(cors({
+  origin: function (origin, callback) {
+    // Izinkan request tanpa origin (seperti dari Postman atau curl) atau dari origin yang diizinkan
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json());
 
 // Rute
@@ -22,6 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/lms', lmsRoutes);
+app.use('/api/ai-builder', aiBuilderRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 Server backend berjalan di http://localhost:${port}`);
