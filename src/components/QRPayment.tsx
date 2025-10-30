@@ -7,9 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, Copy, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// // --- PERUBAHAN 1: Impor gambar QRIS statis ---
+// import qrisBiBooster from '@/qris-bi-booster.webp'; 
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-interface QRPaymentProps {
+interface QRPaymentProps { 
   orderData: {
     orderId: string;
     packageName: string;
@@ -26,9 +29,9 @@ const QRPayment: React.FC<QRPaymentProps> = ({ orderData, onPaymentComplete }) =
   const [isChecking, setIsChecking] = useState(false);
   const { toast } = useToast();
 
-  // Generate QRIS URL
-  const qrisData = `QRIS|${orderData.packageName}|${orderData.price}|${orderData.customerName}|${orderData.customerPhone}`;
-  const qrisUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrisData)}`;
+  // // Generate QRIS URL
+  // const qrisData = `QRIS|${orderData.packageName}|${orderData.price}|${orderData.customerName}|${orderData.customerPhone}`;
+  // const qrisUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrisData)}`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -132,9 +135,9 @@ const QRPayment: React.FC<QRPaymentProps> = ({ orderData, onPaymentComplete }) =
                   <h3 className="font-semibold text-gray-900">Scan QR Code untuk Pembayaran</h3>
                   <div className="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300 inline-block">
                     <img 
-                      src={qrisUrl} 
-                      alt="QR Code Pembayaran" 
-                      className="w-64 h-64 mx-auto"
+                      src="/qris-bi-booster.webp" 
+                      alt="QRIS Pembayaran B.I. Booster" 
+                      className="w-64 h-auto mx-auto" // Ukuran disesuaikan
                     />
                   </div>
                   <p className="text-sm text-gray-600">
@@ -189,16 +192,16 @@ const QRPayment: React.FC<QRPaymentProps> = ({ orderData, onPaymentComplete }) =
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button 
+                  {/* <Button 
                     variant="outline" 
                     className="flex-1"
                     onClick={() => window.open(qrisUrl, '_blank')}
                   >
                     <ExternalLink size={16} className="mr-2" />
                     Buka QR di Tab Baru
-                  </Button>
+                  </Button> */}
                   <Button 
-                    className="flex-1"
+                    className="w-full" // Dibuat full width
                     onClick={checkPaymentStatus}
                     disabled={isChecking}
                   >

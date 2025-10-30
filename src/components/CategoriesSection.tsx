@@ -91,15 +91,12 @@ const CategoriesSection = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">{category.name}</h3>
                 <p className="text-gray-600 mb-4">{category.description}</p>
                 <div className="flex gap-3">
-                  {/* --- PERUBAHAN: Link URL dienkode agar sesuai dengan query --- */}
-                  <Link to={`/templates?category=${encodeURIComponent(category.categoryQuery)}`} className="flex-1">
+                  <Link to={`/templates?category=${encodeURIComponent(category.categoryQuery)}`} className="w-full">
                     <Button variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-200">
                       Lihat Template
                     </Button>
                   </Link>
-                  <Button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white transition-all duration-200">
-                    Konsultasi
-                  </Button>
+                  {/* Tombol Konsultasi Dihilangkan */}
                 </div>
               </div>
             </Card>

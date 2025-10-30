@@ -234,14 +234,12 @@ const Templates = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.name}</h3>
                 <p className="text-gray-600 text-sm mb-4">{template.description}</p>
                 <div className="flex gap-2">
-                  <Link to={`/preview/${template.id}`} className="flex-1">
+                  <Link to={`/preview/${template.id}`} className="w-full">
                     <Button variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-200 text-sm">
                       Preview
                     </Button>
                   </Link>
-                  <Button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white transition-all duration-200 text-sm">
-                    Pesan
-                  </Button>
+                  {/* Tombol Pesan Dihilangkan */}
                 </div>
               </div>
             </Card>
