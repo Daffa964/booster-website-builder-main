@@ -1,11 +1,13 @@
 // server/src/routes/aiBuilder.ts
 import { Router } from 'express';
-import { startAiBuildProcess } from '../controllers/aiBuilderController'; // Hanya import ini
+// Import semua controller yang dibutuhkan
+import { startAiBuildProcess, getAiBuildStatus, completeAiBuildProcess, failAiBuildProcess } from '../controllers/aiBuilderController';
 
 const router = Router();
 
 router.post('/start', startAiBuildProcess);
-// Hapus atau komentari rute status:
-// router.get('/status/:jobId', getAiBuildStatus);
+router.get('/status/:jobId', getAiBuildStatus);
+router.post('/complete/:jobId', completeAiBuildProcess); // <-- Endpoint untuk operator (sukses)
+router.post('/fail/:jobId', failAiBuildProcess); // <-- Endpoint opsional untuk operator (gagal)
 
 export default router;

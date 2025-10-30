@@ -1,3 +1,4 @@
+// src/components/CategoriesSection.tsx
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -5,44 +6,52 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const CategoriesSection = () => {
+  // --- PERUBAHAN: Kategori baru Anda ---
   const categories = [
     {
-      name: 'Laundry',
-      image: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=400&h=300&fit=crop',
-      description: 'Template khusus untuk bisnis laundry dan dry cleaning',
-      templateCount: 12
+      name: 'Makanan & Minuman (F&B)',
+      image: './makanan-minuman-fnb.webp',
+      description: 'Template untuk bisnis kuliner, F&B, dan hasil bumi.',
+      templateCount: 2, // Berdasarkan data Anda (prototipe13, prototipe36)
+      categoryQuery: 'Makanan & Minuman (F&B)' // Teks untuk URL query
     },
     {
-      name: 'Makanan',
-      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop',
-      description: 'Showcase menu dan layanan kuliner Anda',
-      templateCount: 15
+      name: 'Fashion & Kecantikan',
+      image: './fashion-kecantikan.webp',
+      description: 'Template untuk toko pakaian, salon, dan produk perawatan.',
+      templateCount: 4, // Berdasarkan data Anda
+      categoryQuery: 'Fashion & Kecantikan'
     },
     {
-      name: 'Kerajinan Tangan',
-      image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=400&h=300&fit=crop',
-      description: 'Tampilkan karya seni dan kerajinan unik Anda',
-      templateCount: 8
+      name: 'Jasa Profesional & Bisnis',
+      image: './jasaprofesional-bisnis.webp', // Gambar baru untuk Jasa
+      description: 'Layanan B2B, konsultan, agensi, keuangan, dan industri.',
+      templateCount: 12, // Berdasarkan data Anda
+      categoryQuery: 'Jasa Profesional & Bisnis'
     },
     {
-      name: 'Fashion',
-      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop',
-      description: 'Etalase produk fashion dan aksesori terbaik',
-      templateCount: 11
+      name: 'Teknologi, Kreatif & Portofolio',
+      image: './teknologi-kreatif.webp',
+      description: 'Untuk bisnis digital, IT, agensi kreatif, dan portofolio.',
+      templateCount: 15, // Berdasarkan data Anda
+      categoryQuery: 'Teknologi, Kreatif & Portofolio'
     },
     {
-      name: 'Kecantikan',
-      image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop',
-      description: 'Template untuk salon dan layanan kecantikan',
-      templateCount: 9
+      name: 'Jasa Hunian & Perbaikan',
+      image: './jasa-perbaikan-rumah.webp', 
+      description: 'Konstruksi, real estate, kebersihan, dan jasa reparasi.',
+      templateCount: 9, // Berdasarkan data Anda
+      categoryQuery: 'Jasa Hunian & Perbaikan'
     },
     {
-      name: 'Teknologi',
-      image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop',
-      description: 'Solusi digital untuk bisnis teknologi',
-      templateCount: 7
+      name: 'Kesehatan, Pendidikan & Gaya Hidup',
+      image: './kesehatan-pendidikan.webp', 
+      description: 'Klinik, pendidikan (LMS), kebugaran, hobi, dan pariwisata.',
+      templateCount: 16, // Berdasarkan data Anda
+      categoryQuery: 'Kesehatan, Pendidikan & Gaya Hidup'
     }
   ];
+  // --- AKHIR PERUBAHAN ---
 
   return (
     <section id="kategori" className="py-20 bg-gray-50">
@@ -56,7 +65,7 @@ const CategoriesSection = () => {
           </p>
           <Link to="/templates">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
-              Lihat Semua Template (80+)
+              Lihat Semua Template (60+)
             </Button>
           </Link>
         </div>
@@ -82,7 +91,8 @@ const CategoriesSection = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">{category.name}</h3>
                 <p className="text-gray-600 mb-4">{category.description}</p>
                 <div className="flex gap-3">
-                  <Link to={`/templates?category=${category.name.toLowerCase()}`} className="flex-1">
+                  {/* --- PERUBAHAN: Link URL dienkode agar sesuai dengan query --- */}
+                  <Link to={`/templates?category=${encodeURIComponent(category.categoryQuery)}`} className="flex-1">
                     <Button variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-200">
                       Lihat Template
                     </Button>

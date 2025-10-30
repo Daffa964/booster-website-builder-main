@@ -1,6 +1,7 @@
+// src/pages/Templates.tsx
 
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,68 +9,147 @@ import { Badge } from '@/components/ui/badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Filter } from 'lucide-react';
 
-// Import template thumbnails
-import templateLaundry from '@/assets/template-laundry.jpg';
-import templateFood from '@/assets/template-food.jpg';
-import templateCraft from '@/assets/template-craft.jpg';
-import templateFashion from '@/assets/template-fashion.jpg';
-import templateBeauty from '@/assets/template-beauty.jpg';
-import templateTech from '@/assets/template-tech.jpg';
-import templateService from '@/assets/template-service.jpg';
-import templateRetail from '@/assets/template-retail.jpg';
-
 const Templates = () => {
+  const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const templatesPerPage = 12;
 
-  // Template thumbnails mapping
-  const getTemplateImage = (category: string) => {
-    switch (category) {
-      case 'Laundry': return templateLaundry;
-      case 'Makanan': return templateFood;
-      case 'Kerajinan': return templateCraft;
-      case 'Fashion': return templateFashion;
-      case 'Kecantikan': return templateBeauty;
-      case 'Teknologi': return templateTech;
-      case 'Jasa': return templateService;
-      case 'Retail': return templateRetail;
-      default: return templateTech;
-    }
-  };
-
-  // Mock data untuk 80+ templates
-  const allTemplates = Array.from({ length: 84 }, (_, i) => ({
-    id: `template-${i + 1}`,
-    name: `Template ${i + 1}`,
-    category: ['Laundry', 'Makanan', 'Kerajinan', 'Fashion', 'Kecantikan', 'Teknologi', 'Jasa', 'Retail'][i % 8],
-    description: `Template profesional untuk bisnis ${['laundry', 'kuliner', 'kerajinan', 'fashion', 'kecantikan', 'teknologi', 'jasa', 'retail'][i % 8]}`,
-    image: getTemplateImage(['Laundry', 'Makanan', 'Kerajinan', 'Fashion', 'Kecantikan', 'Teknologi', 'Jasa', 'Retail'][i % 8]),
-    prototypeUrl: `https://prototipe-p2mw.barikliahmada.my.id/prototipe${i + 1}`,
-    featured: i < 6
-  }));
-
+  // --- PERUBAHAN 1: Data Kategori Baru (Sesuai Home) ---
   const categories = [
     { value: 'all', label: 'Semua Kategori' },
-    { value: 'Laundry', label: 'Laundry' },
-    { value: 'Makanan', label: 'Makanan' },
-    { value: 'Kerajinan', label: 'Kerajinan Tangan' },
-    { value: 'Fashion', label: 'Fashion' },
-    { value: 'Kecantikan', label: 'Kecantikan' },
-    { value: 'Teknologi', label: 'Teknologi' },
-    { value: 'Jasa', label: 'Jasa' },
-    { value: 'Retail', label: 'Retail' }
+    { value: 'Makanan & Minuman (F&B)', label: 'Makanan & Minuman (F&B)' },
+    { value: 'Fashion & Kecantikan', label: 'Fashion & Kecantikan' },
+    { value: 'Jasa Profesional & Bisnis', label: 'Jasa Profesional & Bisnis' },
+    { value: 'Teknologi, Kreatif & Portofolio', label: 'Teknologi, Kreatif & Portofolio' },
+    { value: 'Jasa Hunian & Perbaikan', label: 'Jasa Hunian & Perbaikan' },
+    { value: 'Kesehatan, Pendidikan & Gaya Hidup', label: 'Kesehatan, Pendidikan & Gaya Hidup' },
   ];
 
-  // Filter templates berdasarkan kategori
+  // --- PERUBAHAN 2: Pemetaan Kategori ke Gambar (Sesuai Home) ---
+  // Gunakan path /public/ Anda
+  const categoryImageMapping: { [key: string]: string } = {
+    'Makanan & Minuman (F&B)': '/makanan-minuman-fnb.webp', // Ganti dengan nama file Anda
+    'Fashion & Kecantikan': '/fashion-kecantikan.webp',
+    'Jasa Profesional & Bisnis': '/jasaprofesional-bisnis.webp', // Ganti dengan nama file Anda
+    'Teknologi, Kreatif & Portofolio': '/teknologi-kreatif.webp',
+    'Jasa Hunian & Perbaikan': '/jasa-perbaikan-rumah.webp',
+    'Kesehatan, Pendidikan & Gaya Hidup': '/kesehatan-pendidikan.webp',
+    'default': '/teknologi-kreatif.webp'
+  };
+
+  const getTemplateImage = (category: string) => {
+    return categoryImageMapping[category] || categoryImageMapping['default'];
+  };
+
+  // --- Data Mapping 63 Prototipe Anda (Sudah Benar) ---
+  const templateCategoryMapping: { [key: string]: string } = {
+    'prototipe1': 'Jasa Hunian & Perbaikan',
+    'prototipe2': 'Teknologi, Kreatif & Portofolio',
+    'prototipe3': 'Teknologi, Kreatif & Portofolio',
+    'prototipe4': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe5': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe6': 'Teknologi, Kreatif & Portofolio',
+    'prototipe7': 'Fashion & Kecantikan',
+    'prototipe8': 'Teknologi, Kreatif & Portofolio',
+    'prototipe9': 'Teknologi, Kreatif & Portofolio',
+    'prototipe10': 'Jasa Profesional & Bisnis',
+    'prototipe11': 'Fashion & Kecantikan',
+    'prototipe12': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe13': 'Makanan & Minuman (F&B)',
+    'prototipe14': 'Jasa Profesional & Bisnis',
+    'prototipe15': 'Fashion & Kecantikan',
+    'prototipe16': 'Jasa Hunian & Perbaikan',
+    'prototipe17': 'Teknologi, Kreatif & Portofolio',
+    'prototipe18': 'Teknologi, Kreatif & Portofolio',
+    'prototipe19': 'Jasa Hunian & Perbaikan',
+    'prototipe20': 'Jasa Hunian & Perbaikan',
+    'prototipe21': 'Jasa Profesional & Bisnis',
+    'prototipe22': 'Jasa Profesional & Bisnis',
+    'prototipe23': 'Teknologi, Kreatif & Portofolio',
+    'prototipe24': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe25': 'Jasa Hunian & Perbaikan',
+    'prototipe26': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe27': 'Jasa Hunian & Perbaikan',
+    'prototipe28': 'Jasa Profesional & Bisnis',
+    'prototipe29': 'Jasa Hunian & Perbaikan',
+    'prototipe30': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe31': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe32': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe33': 'Teknologi, Kreatif & Portofolio',
+    'prototipe34': 'Jasa Profesional & Bisnis',
+    'prototipe35': 'Jasa Profesional & Bisnis',
+    'prototipe36': 'Makanan & Minuman (F&B)',
+    'prototipe37': 'Jasa Profesional & Bisnis',
+    'prototipe38': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe39': 'Jasa Profesional & Bisnis',
+    'prototipe40': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe41': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe42': 'Jasa Hunian & Perbaikan',
+    'prototipe43': 'Jasa Profesional & Bisnis',
+    'prototipe44': 'Jasa Profesional & Bisnis',
+    'prototipe45': 'Jasa Profesional & Bisnis',
+    'prototipe46': 'Teknologi, Kreatif & Portofolio',
+    'prototipe47': 'Teknologi, Kreatif & Portofolio',
+    'prototipe48': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe49': 'Teknologi, Kreatif & Portofolio',
+    'prototipe50': 'Teknologi, Kreatif & Portofolio',
+    'prototipe51': 'Teknologi, Kreatif & Portofolio',
+    'prototipe52': 'Teknologi, Kreatif & Portofolio',
+    'prototipe53': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe54': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe55': 'Teknologi, Kreatif & Portofolio',
+    'prototipe56': 'Teknologi, Kreatif & Portofolio',
+    'prototipe57': 'Jasa Hunian & Perbaikan',
+    'prototipe58': 'Kesehatan, Pendidikan & Gaya Hidup',
+    'prototipe59': 'Jasa Profesional & Bisnis',
+    'prototipe60': 'Fashion & Kecantikan',
+    'prototipe61': 'Jasa Profesional & Bisnis',
+    'prototipe62': 'Jasa Profesional & Bisnis',
+    'prototipe63': 'Kesehatan, Pendidikan & Gaya Hidup',
+  };
+
+  // --- PERUBAHAN 3: Logika Generasi allTemplates ---
+  const allTemplates = Array.from({ length: 63 }, (_, i) => {
+    const templateIndex = i + 1;
+    const templateKey = `prototipe${templateIndex}`;
+    const category = templateCategoryMapping[templateKey] || 'Lainnya'; 
+    const simpleCategoryName = category.split(' ')[0].replace(',', '');
+
+    return {
+      id: `template-${templateIndex}`,
+      name: `Template ${templateIndex}`, 
+      category: category,
+      description: `Template profesional untuk ${simpleCategoryName.toLowerCase()}`,
+      // --- PERUBAHAN KUNCI ---
+      // Ambil gambar berdasarkan KATEGORI, bukan ID individual
+      image: getTemplateImage(category),
+      // --- AKHIR PERUBAHAN KUNCI ---
+      prototypeUrl: `https://prototipe-p2mw.barikliahmada.my.id/prototipe${templateIndex}`,
+      featured: i < 6 
+    };
+  });
+
+  // --- Atur Kategori Terpilih dari URL (Sudah Benar) ---
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl) {
+      const isValidCategory = categories.some(c => c.value === categoryFromUrl);
+      if (isValidCategory) {
+        setSelectedCategory(categoryFromUrl);
+      }
+    }
+  }, [searchParams]);
+
+  // Filter templates (Sudah Benar)
   const filteredTemplates = useMemo(() => {
     if (selectedCategory === 'all') {
       return allTemplates;
     }
     return allTemplates.filter(template => template.category === selectedCategory);
-  }, [selectedCategory]);
+  }, [selectedCategory, allTemplates]);
 
-  // Pagination logic
+  // Pagination logic (Sudah Benar)
   const totalPages = Math.ceil(filteredTemplates.length / templatesPerPage);
   const startIndex = (currentPage - 1) * templatesPerPage;
   const currentTemplates = filteredTemplates.slice(startIndex, startIndex + templatesPerPage);
@@ -81,7 +161,7 @@ const Templates = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    setCurrentPage(1); // Reset ke halaman pertama saat filter berubah
+    setCurrentPage(1); 
   };
 
   return (
@@ -104,7 +184,7 @@ const Templates = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filter Section */}
+        {/* Filter Section (Sudah Benar) */}
         <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-3">
             <Filter className="h-5 w-5 text-gray-500" />
@@ -130,13 +210,13 @@ const Templates = () => {
           )}
         </div>
 
-        {/* Templates Grid */}
+        {/* Templates Grid (Sudah Benar) */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {currentTemplates.map((template) => (
             <Card key={template.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 group">
               <div className="relative">
                 <img
-                  src={template.image}
+                  src={template.image} // Ini sekarang akan menggunakan gambar kategori
                   alt={template.name}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                 />
@@ -168,7 +248,7 @@ const Templates = () => {
           ))}
         </div>
 
-        {/* Pagination */}
+        {/* Pagination (Sudah Benar) */}
         {totalPages > 1 && (
           <div className="flex justify-center">
             <Pagination>
@@ -231,4 +311,4 @@ const Templates = () => {
   );
 };
 
-export default Templates;
+export default Templates; 

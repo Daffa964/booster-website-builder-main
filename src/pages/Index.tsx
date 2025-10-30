@@ -6,6 +6,7 @@ import CategoriesSection from '../components/CategoriesSection';
 import HowItWorksSection from '../components/HowItWorksSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import Footer from '../components/Footer';
+import FloatingWhatsAppButton from '../components/FloatingWhatsAppButton';
 
 const Index = () => {
   return (
@@ -16,6 +17,7 @@ const Index = () => {
       <HowItWorksSection />
       <TestimonialsSection />
       <Footer />
+      <FloatingWhatsAppButton />
     </div>
   );
 };

@@ -1,112 +1,190 @@
 // server/src/controllers/aiBuilderController.ts
 import { Request, Response } from 'express';
 import { CohereClient } from "cohere-ai";
+import { v4 as uuidv4 } from 'uuid';
+import nodemailer from 'nodemailer';
 
-// Ambil API Key Cohere dari environment variable
+// --- Inisialisasi Cohere Client ---
 const COHERE_API_KEY = process.env.COHERE_API_KEY;
-
-if (!COHERE_API_KEY) {
-  console.error("❌ COHERE_API_KEY environment variable is not set.");
-  // process.exit(1); // Pertimbangkan exit di production
-}
-
-// Inisialisasi klien Cohere (hanya jika API Key ada)
 let cohere: CohereClient | null = null;
 if (COHERE_API_KEY) {
-  cohere = new CohereClient({
-    token: COHERE_API_KEY,
-  });
+  cohere = new CohereClient({ token: COHERE_API_KEY });
+} else {
+  console.error("❌ COHERE_API_KEY tidak ditemukan di .env.");
 }
 
-// Hanya butuh fungsi ini (mirip sebelumnya)
+// --- Struktur Status Job ---
+interface JobStatus {
+  status: 'processing' | 'completed' | 'failed';
+  professional_prompt: string;
+  resultUrl?: string | null;
+  error?: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+const jobStatuses: { [key: string]: JobStatus } = {};
+
+// --- Konfigurasi Nodemailer ---
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS;
+const emailService = process.env.EMAIL_SERVICE?.toLowerCase();
+const operatorEmail = process.env.OPERATOR_EMAIL;
+
+let transporter: nodemailer.Transporter | null = null;
+
+console.log("📧 Membaca konfigurasi email dari .env:");
+console.log(`- EMAIL_SERVICE: ${emailService}`);
+console.log(`- EMAIL_USER: ${emailUser ? '*** (ada)' : 'Tidak ada'}`);
+console.log(`- EMAIL_PASS: ${emailPass ? '*** (ada)' : 'Tidak ada'}`);
+console.log(`- OPERATOR_EMAIL: ${operatorEmail || 'Tidak ada'}`);
+
+if (emailUser && emailPass && operatorEmail) {
+  if (emailService === 'gmail') {
+    console.log("➡️ Mengkonfigurasi transporter Gmail...");
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: emailUser, pass: emailPass },
+    });
+  } else {
+    console.warn(`⚠️ EMAIL_SERVICE '${emailService}' tidak dikenal.`);
+  }
+
+  if (transporter) {
+    transporter.verify((error) => {
+      if (error) {
+        console.error("❌ Verifikasi Nodemailer gagal:", error);
+        transporter = null;
+      } else {
+        console.log("✅ Nodemailer siap mengirim email ke", operatorEmail);
+      }
+    });
+  }
+} else {
+  console.warn("⚠️ Kredensial email tidak lengkap, pengiriman email dinonaktifkan.");
+}
+
+// --- Helper: Kirim Email ke Operator ---
+async function sendPromptToOperator(jobId: string, prompt: string) {
+  console.log(`[Email Job ${jobId}] Memulai pengiriman prompt ke operator.`);
+
+  if (!transporter) {
+    console.warn(`[Email Job ${jobId}] ❌ Transporter tidak aktif.`);
+    return;
+  }
+  if (!operatorEmail) {
+    console.warn(`[Email Job ${jobId}] ❌ OPERATOR_EMAIL tidak diatur.`);
+    return;
+  }
+
+  const mailOptions = {
+    from: `"B.I Booster AI" <${emailUser}>`,
+    to: operatorEmail,
+    subject: `[BI Booster] Prompt Siap untuk Job: ${jobId}`,
+    text: `Prompt profesional untuk Job ID ${jobId}:\n\n${prompt}`,
+    html: `<p>Prompt profesional untuk Job ID <b>${jobId}</b>:</p><pre>${prompt}</pre>`,
+  };
+
+  try {
+    let info = await transporter.sendMail(mailOptions);
+    console.log(`[Email Job ${jobId}] ✅ Email terkirim: ${info.messageId}`);
+  } catch (error) {
+    console.error(`[Email Job ${jobId}] ❌ Gagal mengirim email:`, error);
+  }
+}
+
+// --- Controller: Mulai Proses AI ---
 export const startAiBuildProcess = async (req: Request, res: Response) => {
-    const { raw_prompt } = req.body;
+  const { raw_prompt } = req.body;
+  if (!raw_prompt || typeof raw_prompt !== 'string' || !cohere) {
+    return res.status(400).json({ error: 'Input tidak valid atau AI belum siap.' });
+  }
 
-    if (!raw_prompt || typeof raw_prompt !== 'string' || raw_prompt.trim() === '') {
-        return res.status(400).json({ error: 'Prompt tidak boleh kosong.' });
-    }
-    // Pastikan klien Cohere sudah diinisialisasi
-    if (!cohere) {
-       console.error("Cohere client is not initialized. Check API Key.");
-       return res.status(500).json({ error: 'Konfigurasi AI server bermasalah.' });
-    }
+  console.log('📩 Prompt diterima:', raw_prompt);
 
-    console.log('Backend menerima prompt mentah:', raw_prompt);
+  try {
+    const systemPromptInstruction = `[PERAN DAN TUJUAN]
+Kamu adalah AI Builder yang akan mengubah prompt kasar menjadi brief profesional... (isi sesuai kebutuhan)`;
 
-    try {
-        // --- MEMPROSES PROMPT DENGAN OPENAI ---
+    console.log("🚀 Mengirim prompt ke Cohere...");
+    const response = await cohere.chat({
+      model: "command-r-plus-08-2024",
+      preamble: systemPromptInstruction,
+      message: raw_prompt,
+    });
 
-        // 1. Siapkan System Prompt (sama seperti sebelumnya)
-        const systemPromptInstruction = `
-[PERAN DAN TUJUAN]
-Anda adalah AI Prompt Engineer ahli yang berspesialisasi dalam desain dan pengembangan website. Tugas Anda adalah mengubah permintaan mentah dan sederhana dari pengguna menjadi sebuah prompt yang sangat detail, komprehensif, dan profesional. Prompt hasil buatan Anda akan digunakan oleh AI generator website (bernama Lovable) untuk membuat sebuah website yang fungsional dan lengkap.
+    const professional_prompt = response.text?.trim();
+    if (!professional_prompt) throw new Error("Respons Cohere kosong.");
 
-[INPUT]
-Anda akan menerima satu baris input mentah dari pengguna.
-Contoh Input Mentah: "buatkan web untuk jualan kopi"
+    const jobId = uuidv4();
+    jobStatuses[jobId] = {
+      status: 'processing',
+      professional_prompt,
+      createdAt: Date.now(),
+    };
+    console.log(`[Job ${jobId}] Status awal: processing`);
 
-[TUGAS]
-1.  Tangkap ide inti dari input mentah.
-2.  Perluas ide tersebut secara kreatif. Jika pengguna tidak memberikan detail, ANDA HARUS MENCIPTAKAN detail yang masuk akal (seperti nama bisnis imajiner, fitur spesifik, dan gaya desain) agar website yang dihasilkan terasa unik dan lengkap.
-3.  Pastikan prompt profesional yang Anda hasilkan mencakup elemen-elemen berikut:
-    * **Nama Bisnis & Identitas:** Ciptakan nama bisnis yang terdengar profesional.
-    * **Gaya Desain & Nuansa (Mood):** Jelaskan estetika visual (misal: "modern dan minimalis", "hangat dan rustic", "elegan dan korporat").
-    * **Palet Warna Utama:** Sarankan 2-3 warna utama.
-    * **Struktur Halaman (Sitemap):** Tentukan halaman utama yang harus ada (misal: Home, Tentang Kami, Produk/Layanan, Kontak, Galeri).
-    * **Detail Konten per Halaman:**
-        * **Home:** Apa yang harus ada di hero section (misal: "gambar kopi resolusi tinggi", "CTA: Pesan Sekarang").
-        * **Tentang Kami:** Cerita singkat (misro: "misi kami menyajikan kopi terbaik").
-        * **Produk/Layanan:** Daftar beberapa contoh produk/layanan (misal: "Arabika, Robusta, Es Kopi Susu").
-        * **Kontak:** Informasi apa yang harus ada (misal: "Formulir kontak, Peta Lokasi, No. WhatsApp").
-    * **Call-to-Action (CTA) Utama:** Tentukan satu aksi utama yang diinginkan dari pengunjung.
-    * **Target Audiens:** Jelaskan secara singkat siapa target pasarnya.
+    res.status(200).json({
+      professional_prompt,
+      estimated_duration_minutes: 30,
+      jobId,
+    });
 
-[FORMAT OUTPUT]
-Hasilkan HANYA satu paragraf deskriptif yang mengalir dengan lancar, menggabungkan semua elemen di atas. JANGAN gunakan poin-poin atau format list. Tulis dalam Bahasa Indonesia yang profesional.
-`; // <-- System prompt berakhir di sini
+    console.log(`[Job ${jobId}] Mengirim prompt ke operator...`);
+    sendPromptToOperator(jobId, professional_prompt);
 
-// 2. Panggil API Cohere Chat (Gunakan .chat() non-streaming)
-            console.log("Mengirim prompt ke Cohere (non-streaming)...");
-            const response = await cohere.chat({ // <--- GANTI ke cohere.chat()
-                model: "command-r-plus-08-2024", // <--- Pastikan model ini
-                preamble: systemPromptInstruction,
-                message: raw_prompt,
-                 // Opsi tambahan (opsional)
-                 // temperature: 0.7,
-                 // max_tokens: 500,
-            });
-
-            // Hapus loop 'for await' karena kita tidak streaming lagi
-            /*
-            let professional_prompt = "";
-            for await (const event of chatStream) {
-                if (event.eventType === "text-generation" && event.text) {
-                   professional_prompt += event.text;
-                }
-            }
-            */
-
-            // Langsung ambil hasil dari response.text
-            const professional_prompt = response.text?.trim(); // Tambahkan ?. untuk safety
-
-            if (!professional_prompt || professional_prompt === "") { // Cek string kosong juga
-                 throw new Error("Respons dari Cohere kosong atau tidak valid.");
-            }
-            console.log("Menerima prompt profesional dari Cohere.");
-            // Tidak perlu trim lagi karena sudah di atas
-
-        // 3. Langsung Kirim Hasil ke Frontend
-        const estimated_duration_minutes = 30; // Estimasi untuk Lovable
-        res.status(200).json({
-            professional_prompt: professional_prompt,
-            estimated_duration_minutes: estimated_duration_minutes,
-        });
-
-    } catch (error: any) {
-        console.error('Error saat memanggil OpenAI API:', error);
-        // Tangani berbagai jenis error OpenAI jika perlu
-        res.status(500).json({ error: error.message || 'Gagal menghasilkan prompt profesional dari OpenAI.' });
-    }
+  } catch (error: any) {
+    console.error('❌ Error di startAiBuildProcess:', error);
+    res.status(500).json({ error: error.message || 'Gagal memproses prompt awal.' });
+  }
 };
 
-// Fungsi getAiBuildStatus tidak diperlukan untuk alur ini
+// --- Controller: Ambil Status Job ---
+export const getAiBuildStatus = async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+  if (!jobId) return res.status(400).json({ error: 'Job ID diperlukan.' });
+
+  const job = jobStatuses[jobId];
+  if (!job) return res.status(404).json({ status: 'not_found' });
+
+  console.log(`[Status Check] Job ${jobId}: ${job.status}`);
+  res.status(200).json({ status: job.status, resultUrl: job.resultUrl || null, error: job.error || null });
+};
+
+// --- Controller: Tandai Job Selesai ---
+export const completeAiBuildProcess = async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+  const { websiteUrl } = req.body;
+
+  if (!jobId || !websiteUrl) {
+    return res.status(400).json({ error: 'Job ID dan websiteUrl diperlukan.' });
+  }
+
+  const job = jobStatuses[jobId];
+  if (!job) return res.status(404).json({ error: 'Job tidak ditemukan.' });
+
+  job.status = 'completed';
+  job.resultUrl = websiteUrl;
+  job.updatedAt = Date.now();
+
+  console.log(`[Complete] ✅ Job ${jobId} selesai dengan URL: ${websiteUrl}`);
+  res.status(200).json({ success: true, message: `Job ${jobId} selesai.` });
+};
+
+// --- Controller: Tandai Job Gagal ---
+export const failAiBuildProcess = async (req: Request, res: Response) => {
+  const { jobId } = req.params;
+  const { errorMessage } = req.body;
+
+  if (!jobId) return res.status(400).json({ error: 'Job ID diperlukan.' });
+
+  const job = jobStatuses[jobId];
+  if (!job) return res.status(404).json({ error: 'Job tidak ditemukan.' });
+
+  job.status = 'failed';
+  job.error = errorMessage || 'Proses gagal.';
+  job.resultUrl = null;
+  job.updatedAt = Date.now();
+
+  console.log(`[Fail] ❌ Job ${jobId} gagal: ${job.error}`);
+  res.status(200).json({ success: true, message: `Job ${jobId} gagal.` });
+};
